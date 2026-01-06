@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  /* LIGHT MODE (Purple/Violet Theme) */
+  --background: #ffffff;
+  --foreground: #1e1b4b;
+  /* indigo-950 */
+
+  --card: #f5f3ff;
+  /* violet-50 */
+  --card-foreground: #1e1b4b;
+
+  --popover: #ffffff;
+  --popover-foreground: #1e1b4b;
+
+  --primary: #7c3aed;
+  /* violet-600 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #ede9fe;
+  /* violet-100 */
+  --secondary-foreground: #5b21b6;
+  /* violet-800 */
+
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+
+  --accent: #ddd6fe;
+  /* violet-200 */
+  --accent-foreground: #4c1d95;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #e9d5ff;
+  /* violet-200 */
+  --input: #e9d5ff;
+  --ring: #7c3aed;
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* DARK MODE */
+  --background: #0a0e1a;
+  /* Existing dark bg */
+  --foreground: #ffffff;
+
+  --card: rgba(255, 255, 255, 0.03);
+  --card-foreground: #ffffff;
+
+  --popover: #1a1f2e;
+  --popover-foreground: #ffffff;
+
+  --primary: #3b82f6;
+  /* blue-500 */
+  --primary-foreground: #ffffff;
+
+  --secondary: rgba(255, 255, 255, 0.05);
+  /* white/5 */
+  --secondary-foreground: #ffffff;
+
+  --muted: rgba(0, 0, 0, 0.3);
+  --muted-foreground: #9ca3af;
+  /* gray-400 */
+
+  --accent: rgba(255, 255, 255, 0.05);
+  --accent-foreground: #ffffff;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.05);
+  --input: rgba(255, 255, 255, 0.05);
+  --ring: #3b82f6;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-slow-reverse {
+  0% {
+    transform: rotate(360deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+
+.animate-spin-slow-reverse {
+  animation: spin-slow-reverse 50s linear infinite;
+}
+
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
