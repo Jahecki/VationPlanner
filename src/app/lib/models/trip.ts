@@ -1,4 +1,3 @@
-// plik: src/app/lib/models/trip.ts
 import mongoose, { Schema, model, models } from "mongoose";
 
 const TripSchema = new Schema(
@@ -9,7 +8,6 @@ const TripSchema = new Schema(
     endDate: { type: Date },
     peopleCount: { type: Number, default: 1 },
 
-    // --- ZMIANA: ROZBUDOWANY OBIEKT HOTELU ---
     hotels: [
       {
         name: { type: String, required: true },
@@ -22,8 +20,8 @@ const TripSchema = new Schema(
         checkOut: { type: Date },
       }
     ],
-    isPublic: { type: Boolean, default: false }, // Dla funkcji społecznościowych
-    originalTripId: { type: Schema.Types.ObjectId, ref: "Trip" }, // Jeśli skopiowane
+    isPublic: { type: Boolean, default: false },
+    originalTripId: { type: Schema.Types.ObjectId, ref: "Trip" },
 
     itinerary: [
       {
@@ -31,7 +29,8 @@ const TripSchema = new Schema(
         activities: [
           {
             time: { type: String },
-            description: { type: String }
+            description: { type: String },
+            cost: { type: Number, default: 0 }
           }
         ]
       }

@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import HotelSearch from "./HotelSearch";
 import Reviews from "./Reviews";
-import { useLanguage } from "@/app/lib/context/LanguageContext"; // [FIX] Import added
+import { useLanguage } from "@/app/lib/context/LanguageContext";
 import { Hotel as ApiHotel } from "@/app/lib/hotelApi";
 
-// --- TYPY DANYCH ---
 interface Activity {
   time: string;
   description: string;
+  cost?: number;
 }
 
 interface DayPlan {
@@ -40,7 +40,7 @@ interface TripDetails {
   hotels: Hotel[];
   itinerary: DayPlan[];
   isPublic?: boolean;
-  isOwner?: boolean; // [NEW]
+  isOwner?: boolean;
 }
 
 export default function TripDetailsPage() {
@@ -48,7 +48,7 @@ export default function TripDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
-  const { t } = useLanguage(); // [FIX] Added useLanguage here
+  const { t } = useLanguage();
 
   const [trip, setTrip] = useState<TripDetails | null>(null);
   const [activeTab, setActiveTab] = useState<"info" | "hotels" | "plan" | "reviews">("info");
@@ -57,7 +57,7 @@ export default function TripDetailsPage() {
 
   // Stany planu dnia
   const [activityInputs, setActivityInputs] = useState<{
-    [key: string]: { time: string, text: string }
+    [key: string]: { time: string, text: string, cost: string }
   }>({});
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function TripDetailsPage() {
   };
 
   const updateTripData = async (newData: Partial<TripDetails>) => {
-    if (!trip || !trip.isOwner) return; // [Check Owner]
+    if (!trip || !trip.isOwner) return;
 
     setTrip({ ...trip, ...newData });
 
@@ -129,14 +129,22 @@ export default function TripDetailsPage() {
     }
   };
 
-  // --- HOTELE ---
   const handleAddHotel = (hotel: ApiHotel, checkIn?: Date, checkOut?: Date) => {
     if (!trip || !trip.isOwner) return;
+
+    let totalPrice = hotel.pricePerNight;
+    if (checkIn && checkOut) {
+      const diffTime = Math.abs(checkOut.getTime() - checkIn.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays > 0) {
+        totalPrice = hotel.pricePerNight * diffDays;
+      }
+    }
 
     const newHotel: Hotel = {
       name: hotel.name,
       address: hotel.address,
-      price: hotel.pricePerNight,
+      price: totalPrice,
       currency: hotel.currency,
       rating: hotel.rating,
       image: hotel.image,
@@ -156,12 +164,19 @@ export default function TripDetailsPage() {
     updateTripData({ hotels: updatedHotels });
   };
 
-  // --- PLAN DNIA ---
   const getDaysArray = (start: string, end: string) => {
     if (!start || !end) return [];
+
+    let startDate = new Date(start);
+    let endDate = new Date(end);
+
+    // Swap if start is after end
+    if (startDate > endDate) {
+      [startDate, endDate] = [endDate, startDate];
+    }
+
     const arr = [];
-    const endDate = new Date(end);
-    for (let dt = new Date(start); dt <= endDate; dt.setDate(dt.getDate() + 1)) {
+    for (let dt = new Date(startDate); dt <= endDate; dt.setDate(dt.getDate() + 1)) {
       arr.push(new Date(dt));
     }
     return arr;
@@ -170,7 +185,7 @@ export default function TripDetailsPage() {
   const handleAddActivity = (dateObj: Date) => {
     if (!trip || !trip.isOwner) return;
     const dateKey = dateObj.toISOString().split('T')[0];
-    const input = activityInputs[dateKey] || { time: "", text: "" };
+    const input = activityInputs[dateKey] || { time: "", text: "", cost: "" };
     if (!input.text) return;
 
     const currentItinerary = trip.itinerary || [];
@@ -180,7 +195,8 @@ export default function TripDetailsPage() {
 
     const newActivity = {
       time: input.time || "00:00",
-      description: input.text
+      description: input.text,
+      cost: input.cost ? parseFloat(input.cost) : 0
     };
 
     if (existingDayIndex >= 0) {
@@ -194,7 +210,7 @@ export default function TripDetailsPage() {
     }
 
     updateTripData({ itinerary: updatedItinerary });
-    setActivityInputs(prev => ({ ...prev, [dateKey]: { time: "", text: "" } }));
+    setActivityInputs(prev => ({ ...prev, [dateKey]: { time: "", text: "", cost: "" } }));
   };
 
   const handleRemoveActivity = (dateString: string, activityIndex: number) => {
@@ -212,7 +228,7 @@ export default function TripDetailsPage() {
     }
   };
 
-  const handleInputChange = (dateKey: string, field: "time" | "text", value: string) => {
+  const handleInputChange = (dateKey: string, field: "time" | "text" | "cost", value: string) => {
     setActivityInputs(prev => ({
       ...prev,
       [dateKey]: { ...prev[dateKey], [field]: value }
@@ -239,7 +255,14 @@ export default function TripDetailsPage() {
   const safeHotels = trip.hotels || [];
   const safeItinerary = trip.itinerary || [];
   const tripDays = getDaysArray(trip.startDate, trip.endDate);
-  const totalBudget = safeHotels.reduce((acc, curr) => acc + (curr.price || 0), 0);
+
+  // Calculate total budget (Hotels + Activities)
+  const hotelBudget = safeHotels.reduce((acc, curr) => acc + (curr.price || 0), 0);
+  const activityBudget = safeItinerary.reduce((acc, day) => {
+    return acc + (day.activities?.reduce((sum, act) => sum + (act.cost || 0), 0) || 0);
+  }, 0);
+  const totalBudget = hotelBudget + activityBudget;
+
   const isOwner = trip.isOwner;
 
   return (
@@ -252,7 +275,7 @@ export default function TripDetailsPage() {
         {/* HEADER */}
         <header className="mb-8 border-b border-border pb-8 flex flex-col md:flex-row justify-between items-end gap-4">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-400">
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-purple-300 drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
               {trip.destination}
             </h1>
             <div className="flex gap-4 text-muted-foreground text-sm font-medium">
@@ -264,8 +287,9 @@ export default function TripDetailsPage() {
           </div>
           <div className="flex flex-col gap-2 items-end">
             <div className="text-left md:text-right bg-card p-4 rounded-xl border border-border">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Budżet (noclegi)</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Budżet (Razem)</p>
               <p className="text-2xl font-bold text-green-500">{totalBudget} PLN</p>
+              <p className="text-xs text-muted-foreground">Hotele: {hotelBudget} PLN | Atrakcje: {activityBudget} PLN</p>
             </div>
 
             {isOwner ? (
@@ -307,7 +331,6 @@ export default function TripDetailsPage() {
 
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
 
-          {/* 1. INFORMACJE */}
           {activeTab === "info" && (
             <div className="bg-card border border-border p-8 rounded-2xl">
               <h3 className="text-xl font-bold mb-4">Statystyki podróży</h3>
@@ -330,7 +353,6 @@ export default function TripDetailsPage() {
             </div>
           )}
 
-          {/* 2. HOTELE */}
           {activeTab === "hotels" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className={`space-y-4 ${isOwner ? "order-2 lg:order-1" : "col-span-2"}`}>
@@ -394,13 +416,12 @@ export default function TripDetailsPage() {
             </div>
           )}
 
-          {/* 3. PLAN DNIA */}
           {activeTab === "plan" && (
             <div className="space-y-12">
               {tripDays.map((dayDate, index) => {
                 const dateKey = dayDate.toISOString().split('T')[0];
                 const dayData = safeItinerary.find(d => d.date && d.date.startsWith(dateKey));
-                const inputValue = activityInputs[dateKey] || { time: "", text: "" };
+                const inputValue = activityInputs[dateKey] || { time: "", text: "", cost: "" };
 
                 return (
                   <div key={dateKey} className="relative pl-8 md:pl-0">
@@ -420,7 +441,14 @@ export default function TripDetailsPage() {
                           <div className="bg-card border border-border p-4 rounded-xl hover:border-primary/50 transition-colors flex justify-between items-start">
                             <div>
                               <span className="md:hidden text-primary text-xs font-mono font-bold block mb-1">{activity.time}</span>
-                              <p className="text-foreground">{activity.description}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-foreground font-medium">{activity.description}</p>
+                                {activity.cost && activity.cost > 0 && (
+                                  <span className="text-xs bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20">
+                                    {activity.cost} PLN
+                                  </span>
+                                )}
+                              </div>
                             </div>
                             {isOwner && (
                               <button onClick={() => handleRemoveActivity(dayData.date, actIndex)} className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1">✕</button>
@@ -435,6 +463,14 @@ export default function TripDetailsPage() {
                           <div className="flex flex-col md:flex-row gap-3">
                             <input type="time" value={inputValue.time} onChange={(e) => handleInputChange(dateKey, "time", e.target.value)} className="bg-background/50 border border-input rounded-lg px-3 py-2 text-sm focus:border-primary outline-none text-foreground w-full md:w-32" />
                             <input type="text" placeholder="Dodaj aktywność..." value={inputValue.text} onChange={(e) => handleInputChange(dateKey, "text", e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddActivity(dayDate)} className="bg-background/50 border border-input rounded-lg px-4 py-2 text-sm focus:border-primary outline-none text-foreground flex-grow" />
+                            <input
+                              type="number"
+                              placeholder="Koszt (PLN)"
+                              value={inputValue.cost || ""}
+                              onChange={(e) => handleInputChange(dateKey, "cost", e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddActivity(dayDate)}
+                              className="bg-background/50 border border-input rounded-lg px-3 py-2 text-sm focus:border-primary outline-none text-foreground w-24 md:w-32"
+                            />
                             <button onClick={() => handleAddActivity(dayDate)} className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20">+</button>
                           </div>
                         </div>
@@ -446,7 +482,6 @@ export default function TripDetailsPage() {
             </div>
           )}
 
-          {/* 4. OPINIE */}
           {activeTab === "reviews" && (
             <Reviews tripId={trip._id} isOwner={!!isOwner} />
           )}

@@ -14,7 +14,6 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const dictionaries: Record<Language, Record<string, string>> = {
     pl: {
-        // Navbar
         "nav.explore": "Odkrywaj",
         "nav.about": "O nas",
         "nav.login": "Logowanie",
@@ -22,7 +21,6 @@ export const dictionaries: Record<Language, Record<string, string>> = {
         "nav.dashboard": "Panel",
         "nav.logout": "Wyloguj",
 
-        // Hero
         "hero.badge": "Inteligentne planowanie podróży",
         "hero.title": "Odkryj świat na swoich zasadach.",
         "hero.subtitle": "Stwórz idealny plan podróży w kilka minut. Organizuj loty, hotele i atrakcje w jednym, pięknym miejscu. Dołącz do społeczności podróżników.",
@@ -39,7 +37,6 @@ export const dictionaries: Record<Language, Record<string, string>> = {
         "how.step3.title": "Dziel się wrażeniami",
         "how.step3.desc": "Udostępniaj swoje plany, zbieraj oceny i pomagaj innym w odkrywaniu świata. Zostań częścią społeczności, która kocha podróże tak samo jak Ty.",
 
-        // CTA
         "cta.title": "Gotowy na podróż życia?",
         "cta.subtitle": "Dołącz do tysięcy użytkowników, którzy planują swoje idealne wakacje z VacationPlanner.",
         "cta.button": "Rozpocznij teraz",
@@ -102,6 +99,22 @@ export const dictionaries: Record<Language, Record<string, string>> = {
         "footer.privacy": "Prywatność",
         "footer.terms": "Regulamin",
         "footer.contact": "Kontakt",
+
+        // Hotel Search
+        "hotel.title": "Znajdź hotel",
+        "hotel.city": "Miasto (np. Berlin)",
+        "common.search": "Szukaj",
+
+        "reviews.title": "Opinie użytkowników",
+        "reviews.average": "Średnia ocena",
+        "reviews.owner": "Jako właściciel nie możesz dodawać opinii do własnej podróży.",
+        "reviews.add": "Dodaj opinię",
+        "reviews.rating": "Twoja ocena",
+        "reviews.comment": "Twój komentarz",
+        "reviews.placeholder": "Napisz co myślisz...",
+        "reviews.sending": "Wysyłanie...",
+        "reviews.send": "Wyślij opinię",
+        "reviews.empty": "Brak opinii. Bądź pierwszy!",
     },
     en: {
         // Navbar
@@ -112,7 +125,6 @@ export const dictionaries: Record<Language, Record<string, string>> = {
         "nav.dashboard": "Dashboard",
         "nav.logout": "Log Out",
 
-        // Dashboard
         "dash.welcome": "Hello",
         "dash.traveler": "Traveler",
         "dash.subtitle": "Where will your imagination take you today?",
@@ -192,6 +204,21 @@ export const dictionaries: Record<Language, Record<string, string>> = {
         "footer.privacy": "Privacy",
         "footer.terms": "Terms",
         "footer.contact": "Contact",
+
+        "hotel.title": "Find a Hotel",
+        "hotel.city": "City (e.g. Berlin)",
+        "common.search": "Search",
+
+        "reviews.title": "User Reviews",
+        "reviews.average": "Average Rating",
+        "reviews.owner": "As the owner, you cannot review your own trip.",
+        "reviews.add": "Add Review",
+        "reviews.rating": "Your Rating",
+        "reviews.comment": "Your Comment",
+        "reviews.placeholder": "Write your thoughts...",
+        "reviews.sending": "Sending...",
+        "reviews.send": "Submit Review",
+        "reviews.empty": "No reviews yet. Be the first!",
     }
 };
 

@@ -9,7 +9,6 @@ export interface Hotel {
     amenities: string[];
 }
 
-// Mock database of hotels
 const MOCK_HOTELS: Hotel[] = [
     {
         id: "h1",
@@ -63,13 +62,52 @@ const MOCK_HOTELS: Hotel[] = [
     }
 ];
 
-export async function searchHotels(city: string): Promise<Hotel[]> {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+// Helper to generate dynamic hotels
+const generateHotelsForCity = (city: string): Hotel[] => {
+    const capitalizedCity = city.charAt(0).toUpperCase() + city.slice(1);
 
-    // In a real app, we would filter by city. 
-    // For this mock, we return the same list but maybe randomized slightly or just all of them 
-    // to ensure results always show up for the demo.
+    return [
+        {
+            id: `dym-${city}-1`,
+            name: `${capitalizedCity} Grand Hotel`,
+            address: `Downtown ${capitalizedCity}, City Center`,
+            pricePerNight: Math.floor(Math.random() * (800 - 300) + 300),
+            currency: "PLN",
+            rating: 4.8,
+            image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800",
+            amenities: ["Spa", "Pool", "WiFi", "Restaurant"]
+        },
+        {
+            id: `dym-${city}-2`,
+            name: `The ${capitalizedCity} View`,
+            address: `${capitalizedCity} Bay Area`,
+            pricePerNight: Math.floor(Math.random() * (1200 - 500) + 500),
+            currency: "PLN",
+            rating: 4.9,
+            image: "https://images.unsplash.com/photo-1571896349842-6e5c48dc52e3?auto=format&fit=crop&q=80&w=800",
+            amenities: ["Ocean View", "Bar", "Pool", "Gym"]
+        },
+        {
+            id: `dym-${city}-3`,
+            name: `${capitalizedCity} City Hostel`,
+            address: `Old Town, ${capitalizedCity}`,
+            pricePerNight: Math.floor(Math.random() * (200 - 80) + 80),
+            currency: "PLN",
+            rating: 4.2,
+            image: "https://images.unsplash.com/photo-1555854743-e3c2f6a581ad?auto=format&fit=crop&q=80&w=800",
+            amenities: ["WiFi", "Shared Kitchen", "Lockers"]
+        }
+    ];
+};
+
+export async function searchHotels(city: string): Promise<Hotel[]> {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
     console.log(`Searching hotels in ${city}...`);
+
+    if (city && city.trim().length > 0) {
+        return generateHotelsForCity(city);
+    }
+
     return MOCK_HOTELS;
 }

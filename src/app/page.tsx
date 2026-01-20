@@ -190,7 +190,7 @@ export default function HomePage() {
               number="1"
               title={t("how.step1.title")}
               description={t("how.step1.desc")}
-              image="/feature_plan.png"
+              image="/step1.png"
               imageAlt="Planowanie"
               color="blue"
               align="left"
@@ -201,7 +201,7 @@ export default function HomePage() {
               number="2"
               title={t("how.step2.title")}
               description={t("how.step2.desc")}
-              image="/feature_explore.png"
+              image="/step2.png"
               imageAlt="Odkrywanie"
               color="purple"
               align="right"
@@ -212,7 +212,7 @@ export default function HomePage() {
               number="3"
               title={t("how.step3.title")}
               description={t("how.step3.desc")}
-              image="/feature_share.png"
+              image="/step3.png"
               imageAlt="Udostępnianie"
               color="green"
               align="left"
